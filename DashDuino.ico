@@ -8,8 +8,8 @@
 // Connect the GPS Power pin to 5V
 // Connect the GPS Ground pin to ground
 // If using software serial (sketch example default):
-//   Connect the GPS TX (transmit) pin to Digital 3
-//   Connect the GPS RX (receive) pin to Digital 2
+// Connect the GPS TX (transmit) pin to Digital 3
+// Connect the GPS RX (receive) pin to Digital 2
 
 
 // If using software serial, keep this line enabled
@@ -106,7 +106,8 @@ void setup()
 
 
 // Interrupt is called once a millisecond, looks for any new GPS data, and stores it
-SIGNAL(TIMER0_COMPA_vect) {
+SIGNAL(TIMER0_COMPA_vect) 
+{
   char c = GPS.read();
   // if you want to debug, this is a good time to do it!
 #ifdef UDR0
@@ -117,14 +118,18 @@ SIGNAL(TIMER0_COMPA_vect) {
 #endif
 }
 
-void useInterrupt(boolean v) {
-  if (v) {
+void useInterrupt(boolean v) 
+{
+  if (v) 
+  {
     // Timer0 is already used for millis() - we'll just interrupt somewhere
     // in the middle and call the "Compare A" function above
     OCR0A = 0xAF;
     TIMSK0 |= _BV(OCIE0A);
     usingInterrupt = true;
-  } else {
+  } 
+  else
+  {
     // do not call the interrupt function COMPA anymore
     TIMSK0 &= ~_BV(OCIE0A);
     usingInterrupt = false;
@@ -143,7 +148,8 @@ void loop()                     // run over and over again
   
   // in case you are not using the interrupt above, you'll
   // need to 'hand query' the GPS, not suggested :(
-  if (! usingInterrupt) {
+  if (! usingInterrupt) 
+  {
     // read data from the GPS in the 'main loop'
     char c = GPS.read();
     // if you want to debug, this is a good time to do it!
@@ -152,7 +158,8 @@ void loop()                     // run over and over again
   }
   
   // if a sentence is received, we can check the checksum, parse it...
-  if (GPS.newNMEAreceived()) {
+  if (GPS.newNMEAreceived()) 
+  {
     // a tricky thing here is if we print the NMEA sentence, or data
     // we end up not listening and catching other sentences! 
     // so be very wary if using OUTPUT_ALLDATA and trytng to print out data
@@ -163,10 +170,14 @@ void loop()                     // run over and over again
   }
 
   // if millis() or timer wraps around, we'll just reset it
-  if (timer > millis())  timer = millis();
+  if (timer > millis())
+  {
+    timer = millis();
+  }
 
-  // approximately every 2 millisecondseconds, we'll get GPS data and update the display
-  if (millis() - timer > 200) { 
+  // approximately every 2 milliseconds, we'll get GPS data and update the display
+  if (millis() - timer > 200) 
+  { 
     timer = millis(); // reset the timer
 
     //if the GPS has a fix
@@ -236,7 +247,7 @@ void generateDisplay()
 
 /*This function retrieves the speed in knots from the GPS,
 and then converts it to MPH. It then displays the proper
-speed on the 4-bit 7-segment display*/
+speed on the 4-digit 7-segment display*/
 void displaySpeed()
 {
   //blank all decimals and colons
@@ -265,7 +276,7 @@ void displaySpeed()
 }
 
 /*This function retrieves the tracking angle from the GPS
-and displays it on the 4-bit 7-segment display*/
+and displays it on the 4-digit 7-segment display*/
 void displayAngle()
 {
   //receive angle from GPS and convert it to an int
@@ -299,7 +310,7 @@ void displayAngle()
 
 /*This function retrieves the current hour and minute
 from the GPS receiver. It then outputs the hour 
-and minute to the 4-bit 7-segment display*/
+and minute to the 4-digit 7-segment display*/
 void displayTime()
 {
   //retrieve the hour from GPS
@@ -346,7 +357,7 @@ void displayTime()
 
 /*This function retrieves the number
 of satellites and displays it on the
-4-bit 7 segment display*/
+4-digit 7 segment display*/
 void displaySats()
 {
   //holder value for string value of satellites
@@ -421,7 +432,7 @@ void setDecimalsI2C(byte decimals)
  * This function processes the fuel quantity of the vehicle
  * and outputs the quantity to the gauge
  */
-void fsuelQuantity()
+void fuelQuantity()
 {
   //reads in the data from the voltage divider coming from the tank
   rawData = analogRead(analogPin);
