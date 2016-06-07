@@ -434,31 +434,57 @@ void setDecimalsI2C(byte decimals)
  */
 void fuelQuantity()
 {
-  //reads in the data from the voltage divider coming from the tank
   rawData = analogRead(analogPin);
-
-  //if there is data
-  if (rawData)
+  
+  if (rawData > 1)
   {
-    //multiply the reading by the reference voltage (5V)
+    //reading on a0 * input voltage
     buffer = rawData * vIn;
-    //chop up the product of the above multiplication into 1024 parts
+    //chop up the reading into 1024 parts
     vOut = buffer /1024.0;
     
     // vin/vout = r1/(r1+r2)
     buffer = (vIn/vOut) - 1;
+    
     //solved for r2
-    r2 = r1 * buffer;
+    r2 = (r1 * buffer)-1;
 
-    /*corrects for curve in linear sending unit 
-    for logarithmic gauge with a pnp transistor 
-    -.0002624x^2 + .079942x + .3745
-    where x is the value of r2 (the sending unit)*/
-    biasOutput = (-.0002624*pow(r2,2)) + .079942*r2 + .3745;
+    
+    if (r2 > 77.0)
+    {
+      biasOutput = 5;
+      analogWrite(11, biasOutput*51);
+    }
 
-    /*output the result of the polynomial above, multiplied by 51
-    You multiply by 51 because the PWM is broken up into 255 parts
-    of a 5-volt scale.  255/5 = 51. */
-    analogWrite(outputPin, biasOutput*51);
+    else
+    {
+      //corrects for curve in linear sending unit 
+      //for logarithmic gauge with a pnp transistor 
+      //-.0002624x^2 + .079942x + .3745
+      biasOutput = (-.0002624*pow(r2,2)) + .079942*r2 + .3745;
+
+      //Multiplying the desired output voltage by 51 provides 
+      //the actual PWM output value between 0 and 255
+      analogWrite(11, biasOutput*51);
+    }
   }
+
+  else
+  {
+    biasOutput = 5;
+    analogWrite(11,biasOutput*51);
+  }
+    
+    //serial monitor outputs
+    Serial.print("Measured Voltage: \t");
+    Serial.print(vOut);
+    Serial.print("\tMeasured Resistance:\t");
+    Serial.print(r2);
+    Serial.print("\tBias Voltage:\t");
+    Serial.print(biasOutput);
+    Serial.print("\tPWM Output\t");
+    Serial.print(biasOutput * 51);
+    Serial.print("\tRaw Data\t");
+    Serial.print(rawData);
+    Serial.println("");
 }
